@@ -9,10 +9,11 @@ Upload any PDF and ask questions—PaperMind finds answers from your document in
    cd PaperMind
    ```
 
-2. **Install Python 3.8+**  
+2. **Install Python 3.8+**
+   
    Make sure Python is installed and available in your PATH.
 
-3. **Create and activate a virtual environment**
+4. **Create and activate a virtual environment**
    ```sh
    python -m venv venv
    venv\Scripts\activate
@@ -28,7 +29,8 @@ Upload any PDF and ask questions—PaperMind finds answers from your document in
    streamlit run app.py
    ```
 
-7. **Open in your browser**  
+7. **Open in your browser**
+   
    Go to the URL shown in the terminal (usually http://localhost:8501).
 
 ---
