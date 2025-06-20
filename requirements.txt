@@ -1,0 +1,9 @@
+streamlit
+chromadb
+google-generativeai
+pypdf
+pillow
+numpy
+pandas
+streamlit-ace
+python-dotenv
