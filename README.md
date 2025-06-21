@@ -43,8 +43,11 @@ Upload any PDF and ask questions—PaperMind finds answers from your document in
 
 Enjoy chatting
 
-### Homepage
-![Homepage](screenshots/home.png)
+**ScreenShots**
 
-### Chat Interface
-![Chat](screenshots/chat_interface.png)
+<p align="center">
+  <img src="screenshots/home.png" alt="Home" width="45%" />
+  &nbsp;
+  <img src="screenshots/chat_interface.png" alt="Chat" width="45%" />
+</p>
+
