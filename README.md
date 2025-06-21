@@ -42,3 +42,9 @@ Upload any PDF and ask questions—PaperMind finds answers from your document in
 ---
 
 Enjoy chatting
+
+### Homepage
+![Homepage](screenshots/home.png)
+
+### Chat Interface
+![Chat](screenshots/chat_interface.png)
