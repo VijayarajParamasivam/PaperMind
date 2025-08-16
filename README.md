@@ -1,6 +1,8 @@
 # PaperMind
 Upload any PDF and ask questions—PaperMind finds answers from your document instantly! 
+
 **Try it live:** [https://paper-mind.streamlit.app/](https://paper-mind.streamlit.app/)
+
 ## Setup Instructions
 
 1. **Clone this repository**
@@ -13,23 +15,23 @@ Upload any PDF and ask questions—PaperMind finds answers from your document in
    
    Make sure Python is installed and available in your PATH.
 
-4. **Create and activate a virtual environment**
+3. **Create and activate a virtual environment**
    ```sh
    python -m venv venv
    venv\Scripts\activate
    ```
 
-5. **Install dependencies**
+4. **Install dependencies**
    ```sh
    pip install -r requirements.txt
    ```
 
-6. **Run the app**
+5. **Run the app**
    ```sh
    streamlit run app.py
    ```
 
-7. **Open in your browser**
+6. **Open in your browser**
    
    Go to the URL shown in the terminal (usually http://localhost:8501).
 
