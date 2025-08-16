@@ -65,15 +65,29 @@ def delete_temp_files(file_path):
         os.remove(file_path)
 
 # ---------------- Global Query Counter ---------------- #
+# Get the current global query count
 def get_global_query_count() -> int:
     supabase = get_supabase_client()
-    data = supabase.table("global_counter").select("count").eq("id", 1).execute()
-    if data.data:
-        return data.data[0]["count"]
+    response = supabase.table("global_counter").select("count").eq("id", 1).execute()
+    
+    if response.data and len(response.data) > 0:
+        return response.data[0]["count"]
     return 0
 
-def increment_global_query_count():
+# Increment the global query count safely
+def increment_global_query_count() -> int:
     supabase = get_supabase_client()
-    current = get_global_query_count()
-    supabase.table("global_counter").update({"count": current + 1}).eq("id", 1).execute()
-    return current + 1
+    
+    # Fetch current value
+    response = supabase.table("global_counter").select("count").eq("id", 1).execute()
+    
+    if response.data and len(response.data) > 0:
+        current = response.data[0]["count"]
+        new_count = current + 1
+        supabase.table("global_counter").update({"count": new_count}).eq("id", 1).execute()
+    else:
+        # Row doesn't exist yet, create it
+        new_count = 1
+        supabase.table("global_counter").insert({"id": 1, "count": new_count}).execute()
+    
+    return new_count
