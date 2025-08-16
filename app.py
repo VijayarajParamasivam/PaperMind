@@ -16,8 +16,12 @@ from ui_utils import inject_chat_css, display_chat_history
 
 
 def process_and_store(uploaded_file, api_key):
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+    except Exception:
+        st.error("Invalid Gemini API Key. Please check your key. Restarting...") 
+        handle_invalid_api_key()
 
     temp_dir = "./temp"
     if not os.path.exists(temp_dir):
@@ -100,9 +104,14 @@ def main():
                     st.error("Please provide both API key and PDF file.")
 
         if st.session_state.processing and not st.session_state.processed:
-            model, collection, pdf_path, chroma_client = process_and_store(
-                st.session_state.uploaded_file, st.session_state.api_key
-            )
+            try:
+                model, collection, pdf_path, chroma_client = process_and_store(
+                    st.session_state.uploaded_file, st.session_state.api_key
+                )
+            except Exception:
+                st.session_state.processing = False
+                st.error("Failed to process PDF. Restarting...")  
+                handle_invalid_api_key()
 
             st.session_state.processed = True
             st.session_state.model = model
@@ -131,14 +140,18 @@ def main():
             collection = st.session_state.collection
             model = st.session_state.model
 
-            results = collection.query(query_texts=[user_input], n_results=3)
-            context_chunks = build_context_chunks(results)
-            history = st.session_state.chat_history[-6:]
-            history_text = build_history_text(history)
-            prompt = build_prompt(context_chunks, history_text, user_input)
+            try:
+                results = collection.query(query_texts=[user_input], n_results=3)
+                context_chunks = build_context_chunks(results)
+                history = st.session_state.chat_history[-6:]
+                history_text = build_history_text(history)
+                prompt = build_prompt(context_chunks, history_text, user_input)
 
-            gemini_response = model.generate_content(prompt)
-            response = gemini_response.text.strip() or "Sorry, I couldn't find an answer in the PDF."
+                gemini_response = model.generate_content(prompt)
+                response = gemini_response.text.strip() or "Sorry, I couldn't find an answer in the PDF."
+            except Exception:
+                response = "Failed to generate response. Invalid API Key or API error."
+                handle_invalid_api_key()
 
             increment_global_query_count()
 
