@@ -72,7 +72,7 @@ def get_global_query_count() -> int:
     
     if response.data and len(response.data) > 0:
         return response.data[0]["count"]
-    return 10
+    return 0
 
 # Increment the global query count safely
 def increment_global_query_count() -> int:
