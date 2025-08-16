@@ -14,6 +14,10 @@ from utils import process_pdf, delete_temp_files, get_global_query_count, increm
 from chat_utils import build_context_chunks, build_history_text, build_prompt
 from ui_utils import inject_chat_css, display_chat_history
 
+st.set_page_config(
+    page_title="PaperMind", 
+    page_icon="🧠",                           
+)
 
 def process_and_store(uploaded_file, api_key):
     try:
