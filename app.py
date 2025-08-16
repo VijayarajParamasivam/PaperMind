@@ -1,12 +1,29 @@
 import streamlit as st
 import os
-import chromadb
-import google.generativeai as genai
 import shutil
+import chromadb
+from chromadb.config import Settings
+import google.generativeai as genai
 
-from utils import process_pdf, create_vector_database, delete_temp_files, get_global_query_count, increment_global_query_count
+from utils import process_pdf, delete_temp_files, get_global_query_count, increment_global_query_count
 from chat_utils import build_context_chunks, build_history_text, build_prompt
 from ui_utils import inject_chat_css, display_chat_history
+
+
+def get_chroma_cloud_client():
+    """
+    Initialize Chroma Cloud client using Streamlit secrets.
+    Make sure to add CHROMA_SERVER and CHROMA_API_KEY in st.secrets
+    """
+    return chromadb.Client(
+        Settings(
+            chroma_api_impl="rest",
+            chroma_server_host=st.secrets["CHROMA_SERVER"],
+            chroma_server_http_port=st.secrets.get("CHROMA_PORT", 8000),
+            chroma_api_key=st.secrets["CHROMA_API_KEY"]
+        )
+    )
+
 
 def process_and_store(uploaded_file, api_key):
     try:
@@ -28,9 +45,10 @@ def process_and_store(uploaded_file, api_key):
     reader = PdfReader(pdf_path)
     total_pages = len(reader.pages)
 
-    # In-memory client (ephemeral DB)
-    chroma_client = chromadb.Client()
+    # --- Use Chroma Cloud instead of in-memory local client ---
+    chroma_client = get_chroma_cloud_client()
 
+    # Delete existing collection if present
     try:
         chroma_client.delete_collection(name="pdf_collection")
     except Exception:
@@ -53,26 +71,24 @@ def process_and_store(uploaded_file, api_key):
 
     return model, collection, pdf_path, chroma_client
 
+
 def handle_invalid_api_key():
     st.error("Invalid Gemini API Key. Please enter a valid key and upload a PDF again.")
     
-    # Clear only session keys that may block restart
     for key in ["processed", "processing", "api_key", "uploaded_file",
                 "model", "collection", "pdf_path", "chroma_client", "chat_history"]:
         if key in st.session_state:
             del st.session_state[key]
 
-    # Show a message and immediately rerun
     st.info("Restarting...")
     import time
-    time.sleep(3) 
+    time.sleep(3)
     st.rerun()
 
 
 def main():
     st.title("PaperMind")
     st.caption("AI-powered PDF assistant")
-
     st.info(f"Doubts cleared so far : **{get_global_query_count()}**")
 
     inject_chat_css()
@@ -83,18 +99,15 @@ def main():
         st.session_state.processing = False
 
     if st.session_state.processing:
-        st.markdown(
-            "<style>.block-container {padding-top: 10vh;}</style>",
-            unsafe_allow_html=True,
-        )
+        st.markdown("<style>.block-container {padding-top: 10vh;}</style>", unsafe_allow_html=True)
         st.info("Please wait while your PDF is being processed...")
 
     if not st.session_state.processed:
         if not st.session_state.processing:
             api_key = st.text_input("Enter your Gemini API Key:")
             st.markdown(
-            'Don\'t have an API key? Get it from [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)',
-            unsafe_allow_html=True
+                'Don\'t have an API key? Get it from [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)',
+                unsafe_allow_html=True
             )
             uploaded_file = st.file_uploader("Upload a PDF file:", type=["pdf"])
             if st.button("Process PDF"):
@@ -132,16 +145,8 @@ def main():
         st.markdown(
             """
             <style>
-            /* Add bottom padding on all screens */
-            .block-container {
-                padding-bottom: 80px !important;
-            }
-            /* Slightly raise chat input on larger screens */
-            @media (min-width: 768px) {
-                .stChat {
-                    margin-bottom: 20px !important;
-                }
-            }
+            .block-container { padding-bottom: 80px !important; }
+            @media (min-width: 768px) { .stChat { margin-bottom: 20px !important; } }
             </style>
             """,
             unsafe_allow_html=True
@@ -159,14 +164,11 @@ def main():
                 prompt = build_prompt(context_chunks, history_text, user_input)
 
                 gemini_response = model.generate_content(prompt)
-                response = gemini_response.text.strip()
-                if not response:
-                    response = "Sorry, I couldn't find an answer in the PDF."
+                response = gemini_response.text.strip() or "Sorry, I couldn't find an answer in the PDF."
             except Exception:
                 response = "Failed to generate response. Invalid API Key or API error."
                 handle_invalid_api_key()
 
-            # ✅ Increment global query counter
             increment_global_query_count()
 
             st.session_state.chat_history.append(("user", user_input))
@@ -176,6 +178,7 @@ def main():
 
         if st.button("Clear Data"):
             clear()
+
 
 def clear():
     delete_temp_files(st.session_state.pdf_path)
@@ -193,7 +196,7 @@ def clear():
             del st.session_state[key]
     st.success("Data cleared. You can upload a new PDF.")
     st.rerun()
-    
+
+
 if __name__ == "__main__":
     main()
-
