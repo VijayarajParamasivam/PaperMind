@@ -3,6 +3,7 @@ import os
 import shutil
 import chromadb
 from chromadb.config import Settings
+
 import google.generativeai as genai
 
 from utils import process_pdf, delete_temp_files, get_global_query_count, increment_global_query_count
