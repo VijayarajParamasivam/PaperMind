@@ -14,7 +14,7 @@ def get_chroma_cloud_client():
     return chromadb.Client(
         Settings(
             chroma_api_impl="rest",
-            chroma_server_host=st.secrets["CHROMA_SERVER"],
+            chroma_server_host=st.secrets["CHROMA_TENANT"],
             chroma_server_http_port=st.secrets.get("CHROMA_PORT", 8000),
             chroma_api_key=st.secrets["CHROMA_API_KEY"]
         )
