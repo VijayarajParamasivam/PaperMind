@@ -20,11 +20,12 @@ def build_prompt(context_chunks, history_text, user_input):
     "For technical questions, stick closely to the PDF and keep answers brief."
     "If a question requires technical knowledge not present in the PDF, "
     "you may use your own knowledge to answer, but do not go beyond that."
-    be a little humurous for hypothetical and impractical questions.\n\n"
+    "be a little humurous for hypothetical and impractical questions.\n\n"
     f"PDF Context:\n{context_chunks}\n\n"
     f"Chat History:\n{history_text}\n"
     f"User: {user_input}\nAssistant:"
 )
+
 
 
 
