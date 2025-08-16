@@ -1,8 +1,25 @@
 import os
 from pypdf import PdfReader
 import streamlit as st
-from supabase import create_client, Client
+import chromadb
+from chromadb.config import Settings
 
+# ---------------- Chroma Cloud Client ---------------- #
+def get_chroma_cloud_client():
+    """
+    Initialize Chroma Cloud client using Streamlit secrets.
+    Make sure to add CHROMA_SERVER, CHROMA_API_KEY, and optional CHROMA_PORT in st.secrets
+    """
+    return chromadb.Client(
+        Settings(
+            chroma_api_impl="rest",
+            chroma_server_host=st.secrets["CHROMA_SERVER"],
+            chroma_server_http_port=st.secrets.get("CHROMA_PORT", 8000),
+            chroma_api_key=st.secrets["CHROMA_API_KEY"]
+        )
+    )
+
+# ---------------- PDF Processing ---------------- #
 def process_pdf(file_path, progress_callback=None):
     reader = PdfReader(file_path)
     texts = []
@@ -14,35 +31,48 @@ def process_pdf(file_path, progress_callback=None):
             progress_callback((i + 1) / total)
     return texts
 
-def create_vector_database(texts, chroma_client, collection_name="pdf_collection"):
+# ---------------- Vector DB Operations ---------------- #
+def create_vector_database(texts, collection_name="pdf_collection"):
+    """
+    Create a collection in Chroma Cloud and add text documents.
+    """
+    chroma_client = get_chroma_cloud_client()
+
+    # Delete existing collection if present
     try:
         chroma_client.delete_collection(name=collection_name)
     except Exception:
         pass
+
     collection = chroma_client.create_collection(name=collection_name)
     ids = [f"id{i+1}" for i in range(len(texts))]
     collection.add(documents=texts, ids=ids)
-    return collection
 
+    return collection, chroma_client
+
+# ---------------- Temporary Files ---------------- #
 def delete_temp_files(file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
 
-
-def get_supabase_client() -> Client:
+# ---------------- Global Query Counter ---------------- #
+def get_global_query_count() -> int:
+    from supabase import create_client
     url = st.secrets["SUPABASE_URL"]
     key = st.secrets["SUPABASE_KEY"]
-    return create_client(url, key)
+    supabase = create_client(url, key)
 
-def get_global_query_count() -> int:
-    supabase = get_supabase_client()
     data = supabase.table("global_counter").select("count").eq("id", 1).execute()
     if data.data:
         return data.data[0]["count"]
     return 0
 
 def increment_global_query_count():
-    supabase = get_supabase_client()
+    from supabase import create_client
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    supabase = create_client(url, key)
+
     current = get_global_query_count()
     supabase.table("global_counter").update({"count": current + 1}).eq("id", 1).execute()
     return current + 1
