@@ -1,7 +1,7 @@
 import os
 from pypdf import PdfReader
-
-COUNTER_FILE = "query_count.txt"
+import streamlit as st
+from supabase import create_client, Client
 
 def process_pdf(file_path, progress_callback=None):
     reader = PdfReader(file_path)
@@ -28,16 +28,21 @@ def delete_temp_files(file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
 
-def get_global_query_count():
-    if not os.path.exists(COUNTER_FILE):
-        with open(COUNTER_FILE, "w") as f:
-            f.write("0")
-        return 0
-    with open(COUNTER_FILE, "r") as f:
-        return int(f.read().strip())
+
+def get_supabase_client() -> Client:
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
+
+def get_global_query_count() -> int:
+    supabase = get_supabase_client()
+    data = supabase.table("global_counter").select("count").eq("id", 1).execute()
+    if data.data:
+        return data.data[0]["count"]
+    return 0
 
 def increment_global_query_count():
-    count = get_global_query_count() + 1
-    with open(COUNTER_FILE, "w") as f:
-        f.write(str(count))
-    return count
+    supabase = get_supabase_client()
+    current = get_global_query_count()
+    supabase.table("global_counter").update({"count": current + 1}).eq("id", 1).execute()
+    return current + 1
