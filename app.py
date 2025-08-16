@@ -15,14 +15,9 @@ from chat_utils import build_context_chunks, build_history_text, build_prompt
 from ui_utils import inject_chat_css, display_chat_history
 
 
-
 def process_and_store(uploaded_file, api_key):
-    try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-    except Exception:
-        st.error("Invalid Gemini API Key. Please check your key. Restarting...") 
-        handle_invalid_api_key()
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
     temp_dir = "./temp"
     if not os.path.exists(temp_dir):
@@ -36,14 +31,10 @@ def process_and_store(uploaded_file, api_key):
     reader = PdfReader(pdf_path)
     total_pages = len(reader.pages)
 
-    # --- Use Chroma Cloud instead of in-memory local client ---
     chroma_client = get_chroma_cloud_client()
 
     # Delete existing collection if present
-    try:
-        chroma_client.delete_collection(name="pdf_collection")
-    except Exception:
-        pass
+    chroma_client.delete_collection(name="pdf_collection")
     collection = chroma_client.create_collection(name="pdf_collection")
 
     progress_bar = st.progress(0, text="Processing PDF and creating vector DB...")
@@ -65,7 +56,7 @@ def process_and_store(uploaded_file, api_key):
 
 def handle_invalid_api_key():
     st.error("Invalid Gemini API Key. Please enter a valid key and upload a PDF again.")
-    
+
     for key in ["processed", "processing", "api_key", "uploaded_file",
                 "model", "collection", "pdf_path", "chroma_client", "chat_history"]:
         if key in st.session_state:
@@ -111,14 +102,9 @@ def main():
                     st.error("Please provide both API key and PDF file.")
 
         if st.session_state.processing and not st.session_state.processed:
-            try:
-                model, collection, pdf_path, chroma_client = process_and_store(
-                    st.session_state.uploaded_file, st.session_state.api_key
-                )
-            except Exception:
-                st.session_state.processing = False
-                st.error("Failed to process PDF. Restarting...")  
-                handle_invalid_api_key()
+            model, collection, pdf_path, chroma_client = process_and_store(
+                st.session_state.uploaded_file, st.session_state.api_key
+            )
 
             st.session_state.processed = True
             st.session_state.model = model
@@ -147,18 +133,14 @@ def main():
             collection = st.session_state.collection
             model = st.session_state.model
 
-            try:
-                results = collection.query(query_texts=[user_input], n_results=3)
-                context_chunks = build_context_chunks(results)
-                history = st.session_state.chat_history[-6:]
-                history_text = build_history_text(history)
-                prompt = build_prompt(context_chunks, history_text, user_input)
+            results = collection.query(query_texts=[user_input], n_results=3)
+            context_chunks = build_context_chunks(results)
+            history = st.session_state.chat_history[-6:]
+            history_text = build_history_text(history)
+            prompt = build_prompt(context_chunks, history_text, user_input)
 
-                gemini_response = model.generate_content(prompt)
-                response = gemini_response.text.strip() or "Sorry, I couldn't find an answer in the PDF."
-            except Exception:
-                response = "Failed to generate response. Invalid API Key or API error."
-                handle_invalid_api_key()
+            gemini_response = model.generate_content(prompt)
+            response = gemini_response.text.strip() or "Sorry, I couldn't find an answer in the PDF."
 
             increment_global_query_count()
 
@@ -173,10 +155,7 @@ def main():
 
 def clear():
     delete_temp_files(st.session_state.pdf_path)
-    try:
-        st.session_state.chroma_client.delete_collection(name="pdf_collection")
-    except Exception:
-        pass
+    st.session_state.chroma_client.delete_collection(name="pdf_collection")
     if os.path.exists("./temp"):
         shutil.rmtree("./temp")
     for key in [
