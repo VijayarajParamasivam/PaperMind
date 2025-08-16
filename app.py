@@ -73,11 +73,14 @@ def handle_invalid_api_key():
 def main():
     st.markdown(
     """
-    <h1 style="display: inline;">PaperMind</h1>
-    <span style="font-size:16px; color:gray; margin-left:10px;">By Vijayaraj Paramasivam</span>
+    <div style="display: flex; align-items: center;">
+        <h1 style="margin: 0;">PaperMind</h1>
+        <span style="font-size:16px; color:gray; margin-left:10px;">By Vijayaraj Paramasivam</span>
+    </div>
     """,
     unsafe_allow_html=True
     )
+
 
     st.caption("AI-powered PDF assistant")
     st.info(f"Doubts cleared so far : **{get_global_query_count()}**")
