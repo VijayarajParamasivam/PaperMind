@@ -10,24 +10,10 @@ from chromadb.config import Settings
 
 import google.generativeai as genai
 
-from utils import process_pdf, delete_temp_files, get_global_query_count, increment_global_query_count
+from utils import process_pdf, delete_temp_files, get_global_query_count, increment_global_query_count, get_chroma_cloud_client
 from chat_utils import build_context_chunks, build_history_text, build_prompt
 from ui_utils import inject_chat_css, display_chat_history
 
-
-def get_chroma_cloud_client():
-    """
-    Initialize Chroma Cloud client using Streamlit secrets.
-    Make sure to add CHROMA_SERVER and CHROMA_API_KEY in st.secrets
-    """
-    return chromadb.Client(
-        Settings(
-            chroma_api_impl="rest",
-            chroma_server_host=st.secrets["CHROMA_SERVER"],
-            chroma_server_http_port=st.secrets.get("CHROMA_PORT", 8000),
-            chroma_api_key=st.secrets["CHROMA_API_KEY"]
-        )
-    )
 
 
 def process_and_store(uploaded_file, api_key):
