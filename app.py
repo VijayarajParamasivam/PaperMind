@@ -33,9 +33,7 @@ def process_and_store(uploaded_file, api_key):
 
     chroma_client = get_chroma_cloud_client()
 
-    # Delete existing collection if present
-    chroma_client.delete_collection(name="pdf_collection")
-    collection = chroma_client.create_collection(name="pdf_collection")
+    collection = chroma_client.get_or_create_collection(name="pdf_collection")
 
     progress_bar = st.progress(0, text="Processing PDF and creating vector DB...")
     texts, ids = [], []
