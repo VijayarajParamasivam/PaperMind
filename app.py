@@ -72,6 +72,8 @@ def handle_invalid_api_key():
 
 def main():
     st.title("PaperMind")
+    st.markdown('<p style="font-size:14px; color:gray;">By Vijayaraj Paramasivam</p>', unsafe_allow_html=True)
+
     st.caption("AI-powered PDF assistant")
     st.info(f"Doubts cleared so far : **{get_global_query_count()}**")
 
