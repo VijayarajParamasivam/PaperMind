@@ -9,16 +9,20 @@ from supabase import create_client, Client
 @st.cache_resource
 def get_chroma_cloud_client():
     """
-    Initialize a Chroma Cloud client once and reuse across session.
+    Initialize a Chroma Cloud client using your tenant, database, and API key.
     """
-    return chromadb.Client(
+    os.environ["CHROMA_API_KEY"] = st.secrets["CHROMA_API_KEY"]
+    os.environ["CHROMA_TENANT"] = st.secrets["CHROMA_TENANT"]
+    os.environ["CHROMA_DATABASE"] = st.secrets["CHROMA_DATABASE"]
+
+    # Initialize Chroma client with REST API
+    client = chromadb.Client(
         Settings(
             chroma_api_impl="rest",
-            chroma_server_host=st.secrets["CHROMA_TENANT"],
-            chroma_server_http_port=st.secrets.get("CHROMA_PORT", 8000),
-            chroma_api_key=st.secrets["CHROMA_API_KEY"]
         )
     )
+    
+    return client
 
 # ---------------- Supabase Client ---------------- #
 @st.cache_resource
