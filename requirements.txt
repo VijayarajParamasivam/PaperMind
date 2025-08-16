@@ -8,3 +8,4 @@ pandas
 streamlit-ace
 python-dotenv
 supabase
+pysqlite3-binary
