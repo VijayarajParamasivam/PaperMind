@@ -77,17 +77,14 @@ def get_global_query_count() -> int:
 # Increment the global query count safely
 def increment_global_query_count() -> int:
     supabase = get_supabase_client()
-    
-    # Fetch current value
-    response = supabase.table("global_counter").select("count").eq("id", 1).execute()
-    
-    if response.data and len(response.data) > 0:
-        current = response.data[0]["count"]
-        new_count = current + 1
-        supabase.table("global_counter").update({"count": new_count}).eq("id", 1).execute()
-    else:
-        # Row doesn't exist yet, create it
+    current = get_global_query_count()
+
+    if current is None:
+        # Row doesn't exist yet, insert it
         new_count = 1
         supabase.table("global_counter").insert({"id": 1, "count": new_count}).execute()
-    
+    else:
+        new_count = current + 1
+        supabase.table("global_counter").update({"count": new_count}).eq("id", 1).execute()
+
     return new_count
