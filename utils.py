@@ -3,12 +3,13 @@ from pypdf import PdfReader
 import streamlit as st
 import chromadb
 from chromadb.config import Settings
+from supabase import create_client, Client
 
 # ---------------- Chroma Cloud Client ---------------- #
+@st.cache_resource
 def get_chroma_cloud_client():
     """
-    Initialize Chroma Cloud client using Streamlit secrets.
-    Make sure to add CHROMA_SERVER, CHROMA_API_KEY, and optional CHROMA_PORT in st.secrets
+    Initialize a Chroma Cloud client once and reuse across session.
     """
     return chromadb.Client(
         Settings(
@@ -18,6 +19,16 @@ def get_chroma_cloud_client():
             chroma_api_key=st.secrets["CHROMA_API_KEY"]
         )
     )
+
+# ---------------- Supabase Client ---------------- #
+@st.cache_resource
+def get_supabase_client() -> Client:
+    """
+    Initialize Supabase client once and reuse across session.
+    """
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
 
 # ---------------- PDF Processing ---------------- #
 def process_pdf(file_path, progress_callback=None):
@@ -38,7 +49,6 @@ def create_vector_database(texts, collection_name="pdf_collection"):
     """
     chroma_client = get_chroma_cloud_client()
 
-    # Delete existing collection if present
     try:
         chroma_client.delete_collection(name=collection_name)
     except Exception:
@@ -57,22 +67,14 @@ def delete_temp_files(file_path):
 
 # ---------------- Global Query Counter ---------------- #
 def get_global_query_count() -> int:
-    from supabase import create_client
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    supabase = create_client(url, key)
-
+    supabase = get_supabase_client()
     data = supabase.table("global_counter").select("count").eq("id", 1).execute()
     if data.data:
         return data.data[0]["count"]
     return 0
 
 def increment_global_query_count():
-    from supabase import create_client
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    supabase = create_client(url, key)
-
+    supabase = get_supabase_client()
     current = get_global_query_count()
     supabase.table("global_counter").update({"count": current + 1}).eq("id", 1).execute()
     return current + 1
