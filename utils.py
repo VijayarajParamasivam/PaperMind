@@ -16,12 +16,7 @@ def get_chroma_cloud_client():
     os.environ["CHROMA_DATABASE"] = st.secrets["CHROMA_DATABASE"]
 
     # Initialize Chroma client with REST API
-    client = chromadb.Client(
-        Settings(
-            chroma_api_impl="rest",
-        )
-    )
-    
+    client = chromadb.Client()
     return client
 
 # ---------------- Supabase Client ---------------- #
