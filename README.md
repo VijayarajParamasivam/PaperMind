@@ -1,6 +1,6 @@
 # PaperMind
 Upload any PDF and ask questions—PaperMind finds answers from your document instantly! 
-
+**Try it live:** [https://paper-mind.streamlit.app/](https://paper-mind.streamlit.app/)
 ## Setup Instructions
 
 1. **Clone this repository**
