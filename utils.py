@@ -1,6 +1,8 @@
 import os
 from pypdf import PdfReader
 
+COUNTER_FILE = "query_count.txt"
+
 def process_pdf(file_path, progress_callback=None):
     reader = PdfReader(file_path)
     texts = []
@@ -25,3 +27,17 @@ def create_vector_database(texts, chroma_client, collection_name="pdf_collection
 def delete_temp_files(file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
+
+def get_global_query_count():
+    if not os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, "w") as f:
+            f.write("0")
+        return 0
+    with open(COUNTER_FILE, "r") as f:
+        return int(f.read().strip())
+
+def increment_global_query_count():
+    count = get_global_query_count() + 1
+    with open(COUNTER_FILE, "w") as f:
+        f.write(str(count))
+    return count
