@@ -17,10 +17,13 @@ def build_prompt(context_chunks, history_text, user_input):
     "using primarily the provided context from the PDF. "
     "For casual or friendly messages (like greetings), respond naturally and empathetically, "
     "even if the content is not in the PDF. "
-    "For technical questions, stick closely to the PDF and keep answers brief.\n\n"
+    "For technical questions, stick closely to the PDF and keep answers brief."
+    "If a question requires technical knowledge not present in the PDF, "
+    "you may use your own knowledge to answer, but do not go beyond that.\n\n"
     f"PDF Context:\n{context_chunks}\n\n"
     f"Chat History:\n{history_text}\n"
     f"User: {user_input}\nAssistant:"
 )
+
 
 
