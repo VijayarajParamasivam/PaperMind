@@ -13,9 +13,14 @@ def build_history_text(history):
 
 def build_prompt(context_chunks, history_text, user_input):
     return (
-        "You are a helpful assistant. Answer as briefly and directly as possible, "
-        "using only the provided context from the PDF. If the answer is not in the context, say so.\n\n"
-        f"PDF Context:\n{context_chunks}\n\n"
-        f"Chat History:\n{history_text}\n"
-        f"User: {user_input}\nAssistant:"
-    )
+    "You are a helpful assistant. Answer concisely and accurately, "
+    "using primarily the provided context from the PDF. "
+    "For casual or friendly messages (like greetings), respond naturally and empathetically, "
+    "even if the content is not in the PDF. "
+    "For technical questions, stick closely to the PDF and keep answers brief.\n\n"
+    f"PDF Context:\n{context_chunks}\n\n"
+    f"Chat History:\n{history_text}\n"
+    f"User: {user_input}\nAssistant:"
+)
+
+
