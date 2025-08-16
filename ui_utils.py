@@ -1,7 +1,7 @@
 import streamlit as st
 
 def inject_chat_css():
-    pass  # No custom CSS needed for default UI
+    pass 
 
 def display_chat_history(chat_history):
     for role, msg in chat_history:
