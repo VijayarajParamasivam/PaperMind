@@ -167,7 +167,7 @@ def main():
                 response = "Failed to generate response. Invalid API Key or API error."
                 handle_invalid_api_key()
 
-            increment_global_query_count()
+            #increment_global_query_count()
 
             st.session_state.chat_history.append(("user", user_input))
             st.session_state.chat_history.append(("bot", response))
