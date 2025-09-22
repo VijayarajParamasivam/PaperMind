@@ -87,7 +87,7 @@ def main():
 
 
     st.caption("AI-powered PDF assistant")
-    st.info(f"Doubts cleared so far : **{500+}**")
+    st.info(f"Doubts cleared so far : **500+**")
 
     inject_chat_css()
 
