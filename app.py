@@ -79,7 +79,7 @@ def main():
     """
     <div style="display: flex; align-items: center;">
         <h1 style="margin: 0;">PaperMind</h1>
-        <span style="font-size:16px; color:gray; margin-left:10px;">By Vijayaraj Paramasivam</span>
+        <span style="font-size:16px; color:gray; margin-left:10px;"></span>
     </div>
     """,
     unsafe_allow_html=True
